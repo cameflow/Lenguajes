@@ -50,43 +50,64 @@ int main()
   estados["q12"] = "Comentario";
 
 
-
+  //Declaración del string que se va a evaluar
   std::string s;
+
+  //Se abre el archivo
   std::ifstream myfile ("test.txt");
   if (myfile.is_open())
   {
+    //Ciclo que se ejecuta por cada linea de el archivo de texto
     while ( getline (myfile,s) )
     {
+      //Set inicial de los estados actuales
       estadoActual = "q0";
       estadoAnterior = "q0";
+
+      //Tamaño de la expresión a evaluar
       int size = s.size();
+
+      //Se pone ese caracter en el string que se va a imprimir
       std::string e;
       char r = s.at(0);
       std::string stringToPrint;
       std::stringstream aa;
       aa << r;
       aa >> stringToPrint;
+
+      //Variables booleanas para control de la aplicación
       bool first = true;
       bool expErr =false;
       bool isComment =false;
+
+      //Ciclo que se ejecuta durante toda la expresión a evaluar
       for(int i = 0; i < size; i++)
       {
+        //Se saca el caracter a evaluar y se convierte a string
         char c = s.at(i);
         std::stringstream ss;
         e = "";
         ss << c;
         ss >> e;
+
+        //Se evalua el caracter para ver a que estado mueve el automata
         evualuarChar(e);
+
+        //Detecta si la expresión llegó a un punto que no se pueda evaluar
         if(estadoActual == "_")
         {
           std::cout << "Expresión Erronea" << std::endl;
           expErr = true;
           break;
         }
+
+        // Detecta si se inició un comentario
         if(estadoActual == "q12")
         {
           isComment = true;
         }
+
+        //Ya solo empieza a guardar el comentario
         if (isComment)
         {
           estadoActual = "q12";
@@ -95,29 +116,30 @@ int main()
             stringToPrint.append(e);
           }
         }
-        else if(estadoAnterior == "q1" && estadoActual == "q2")
+        else if(estadoAnterior == "q1" && estadoActual == "q2") //Cambio de numero entero a numero real
         {
           if (!first)
           {
             stringToPrint.append(e);
           }
         }
-        else if (estadoAnterior == "q7" && estadoActual == "q12")
+        else if (estadoAnterior == "q7" && estadoActual == "q12") //Cambio de división a comentario
         {
           if (!first)
           {
             stringToPrint.append(e);
           }
         }
-        else if(estadoActual != estadoAnterior)
+        else if(estadoActual != estadoAnterior) //Revisa que haya habido un cambio de estado para imprimir
         {
-          // std::cout << "Entra" << std::endl;
+          // Imprime los caracteres acumulados
           std::cout << stringToPrint << " ----> " << estados.find(estadoAnterior)->second << std::endl;
           stringToPrint = "";
           stringToPrint.append(e);
         }
         else
         {
+          //En caso de que no imprima solo sigue acumulando caracteres en una variable hasta que se cambie de estado
           if (!first)
           {
             stringToPrint.append(e);
@@ -126,6 +148,8 @@ int main()
         first = false;
 
       }
+
+      //Se imprime el caracter final
       if (!expErr)
       {
         std::cout << stringToPrint << " ----> " << estados.find(estadoActual)->second << std::endl;
@@ -133,7 +157,7 @@ int main()
       }
       std::cout << "----------------" << std::endl;
     }
-    myfile.close();
+    myfile.close(); //Se cierra el archivo de texto
   }
   else
   {
@@ -146,29 +170,35 @@ int main()
   return 0;
 }
 
+//Función que evalua el caracter y hace los cambios de estado
 void evualuarChar(std::string x)
 {
   int columna = 0;
   int fila = 0;
+
+  //Revisa si se ingresó un espacio
   if (x.empty())
   {
     columna = 12;
   }
   else if (x == "0" || x == "2" || x == "2" || x == "3" || x == "4" || x == "5" || x == "6" || x == "7" || x == "8" || x == "9")
   {
+    //Pone la columna en 1 si se detecto un número
     columna = 1;
   }
   else if (x != "+" && x != "-" && x != "*" &&  x != "/" && x != "=" && x != "(" && x != ")" && x != "^" && x != "." && x != " ")
   {
+    //pone la columna en 8 si se detecta que es una letra (Variable)
     columna = 8;
   }
   else
   {
-    columna = 0;
+    columna = 0; //En caso de que sea un operador se pone la columna en 0
   }
 
   if (columna == 0)
   {
+    //Ciclo que revisa cuál fué el operador que se ingresó
     for(int i = 0; i < 13; i++)
     {
       std::string temp = "";
@@ -181,6 +211,8 @@ void evualuarChar(std::string x)
     }
   }
 
+  //Ys que se sabe cuál fue la entrada se revisa cuál es el estado actual
+  //Una vez que se encuentra el estado actual se ve a que estado transiciona con el token que se ingresó
   for(int i = 0; i < 13; i++)
   {
     std::string temp = "";
@@ -192,6 +224,7 @@ void evualuarChar(std::string x)
     }
   }
 
+  //Asigna los nuevos estados
   estadoAnterior = estadoActual;
   estadoActual = tablaTrans[fila][columna];
   if(estadoAnterior == "q0")
