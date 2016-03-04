@@ -21,3 +21,12 @@
         [(< D 30)(list(+ D 1) M A)]
   ) 
 )
+
+(define (lista-de-fechas-siguientes a)
+  (cond
+    ;Revisa cuando solo queda una fecha
+    [(= (length a) 1) (list(dia-siguiente (car a)))]
+    ;Recursividad que va llamando a la misma función con el resto de la lista y va creando una lista nueva
+    [(append (list(dia-siguiente (car a))) (lista-de-fechas-siguientes (cdr a))) ]
+   )
+  )
