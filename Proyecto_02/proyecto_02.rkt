@@ -19,7 +19,7 @@
         [(and (= D 28)(= M 2))(list 1 3 A)]
         ;Caso para todos los demás días
         [(< D 30)(list(+ D 1) M A)]
-  ) 
+  )
 )
 
 (define (lista-de-fechas-siguientes a)
